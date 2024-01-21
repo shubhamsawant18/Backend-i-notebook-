@@ -49,6 +49,7 @@ router.post('/createuser', [
     const data = {
       user: {
         id: newUser.id // Use newUser instead of newuser
+         
       }
     }
 
@@ -58,7 +59,7 @@ router.post('/createuser', [
   } catch (error) {
     // Handle any errors that occur during user creation
     console.error(error.message);
-    res.status(500).send("Some error occurred");
+    res.status(500).send("Some error  occurred");
   }
 });
 
