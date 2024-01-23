@@ -2,18 +2,23 @@
 
 const mongoose = require('mongoose');
 
-
 const NoteSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'user'
     },
-    
+    title: {
+        type: String,
+        required: true,
+    },
+    _id: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+    },
     description: {
         type: String,
         unique: true,
-        // sparse: true, // Allow multiple null values
-        required: false, // Marking as not required to handle null values
+        required: false,
     },
     date: {
         type: Date,
