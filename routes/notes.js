@@ -3,8 +3,6 @@ const router = express.Router();
 const fetchuser = require("../middleware/fetchuser");
 const Note = require("../models/Note");
 const { body, validationResult } = require("express-validator");
-const { rearrangeFields } = require('../middleware/fetchuser');
-
 
 router.get("/", (req, res) => {
   res.json([]);
@@ -17,7 +15,7 @@ router.get("/fetchallnotes", fetchuser, async (req, res) => {
     res.json(notes);
   } catch (error) {
     console.error(error.message);
-    res.status(500).send("Internal Server Error");
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
@@ -57,7 +55,8 @@ router.post(
     }
   }
 );
-// ROUTE 3:Update an existing note using: POST "/api/notes/updatenote". Login required
+
+// ROUTE 3: Update an existing note using: PUT "/api/notes/updatenote". Login required
 router.put("/updatenote/:id", fetchuser, async (req, res) => {
   const { title, description, tag } = req.body;
 
@@ -71,12 +70,12 @@ router.put("/updatenote/:id", fetchuser, async (req, res) => {
     // Find the note to be updated
     let note = await Note.findById(req.params.id);
     if (!note) {
-      return res.status(404).send("Note not found");
+      return res.status(404).json({ error: "Note not found" });
     }
 
     // Check if the user is authorized to update the note
     if (note.user.toString() !== req.user.id) {
-      return res.status(401).send("Not allowed");
+      return res.status(401).json({ error: "Not allowed" });
     }
 
     // Update the note and return the updated note
@@ -92,6 +91,39 @@ router.put("/updatenote/:id", fetchuser, async (req, res) => {
       description: note.description,
       tag: note.tag,
       date: note.date,
+    });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// ROUTE 4: Delete an existing note using: DELETE "/api/notes/deletenote". Login required
+router.delete("/deletenote/:id", fetchuser, async (req, res) => {
+  try {
+    // Find the note to be deleted
+    let note = await Note.findById(req.params.id);
+    if (!note) {
+      return res.status(404).json({ error: "Note not found" });
+    }
+
+    // Check if the user is authorized to delete the note
+    if (note.user.toString() !== req.user.id) {
+      return res.status(401).json({ error: "Not allowed" });
+    }
+
+    // Delete the note and return the deleted note
+    note = await Note.findByIdAndDelete(req.params.id);
+    res.json({
+      Success: "Note has been deleted",
+      note: {
+        _id: note._id,
+        user: note.user,
+        title: note.title,
+        description: note.description,
+        tag: note.tag,
+        date: note.date,
+      },
     });
   } catch (error) {
     console.error(error.message);
